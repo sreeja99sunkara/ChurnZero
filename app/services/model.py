@@ -35,7 +35,7 @@ from sklearn.metrics import (
 )
 from xgboost import XGBClassifier
 
-from app.core.config import MODEL_PATH
+from app.core.config import HIGH_RISK_THRESHOLD, MEDIUM_RISK_THRESHOLD, MODEL_PATH, SCORE_THRESHOLD
 
 MODEL_VERSION = "v1"
 
@@ -61,7 +61,7 @@ def train_model(
 
 
 def evaluate_model(
-    model: XGBClassifier, X_test: pd.DataFrame, y_test: pd.Series, threshold: float = 0.5
+    model: XGBClassifier, X_test: pd.DataFrame, y_test: pd.Series, threshold: float = SCORE_THRESHOLD
 ) -> dict[str, float]:
     """Score a fitted model on a held-out set.
 
@@ -82,6 +82,24 @@ def evaluate_model(
         "roc_auc": roc_auc_score(y_test, y_proba),
         "pr_auc": average_precision_score(y_test, y_proba),
     }
+
+
+def assign_risk_tier(
+    probability: float, high_threshold: float = HIGH_RISK_THRESHOLD, medium_threshold: float = MEDIUM_RISK_THRESHOLD
+) -> str:
+    """Bucket a single churn probability into high/medium/low.
+
+    Originally written and tested inline in notebooks/04_scoring_pipeline.ipynb;
+    moved here once a second notebook (05_scoring_chain.ipynb) needed the
+    same tier logic -- one place for the threshold rules rather than two
+    copies that could quietly drift apart, same reasoning as build_features()
+    living in feature_pipeline.py instead of each notebook re-deriving it.
+    """
+    if probability >= high_threshold:
+        return "high"
+    if probability >= medium_threshold:
+        return "medium"
+    return "low"
 
 
 def align_features(df: pd.DataFrame, feature_columns: list[str]) -> pd.DataFrame:

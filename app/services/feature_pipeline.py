@@ -48,6 +48,33 @@ ONEHOT_COLUMNS = [
     "PaymentMethod",
 ]
 
+# Fixed category levels for each one-hot column, taken from the full raw
+# dataset. Required for correct scoring, not just cosmetic: pd.get_dummies
+# only emits a column for a category actually present in whatever batch
+# it's given. A small or single-row scoring batch can easily contain only
+# one value for a column (e.g. one customer is just "Male", full stop) --
+# with drop_first=True, get_dummies then produces *zero* dummy columns for
+# it, indistinguishable from "this customer is the baseline category".
+# Casting each column to a Categorical with these fixed levels before
+# get_dummies forces it to always emit the full, consistent column set
+# regardless of batch diversity, which is what makes a single customer
+# score identically whether scored alone or as part of a larger batch.
+CATEGORY_LEVELS = {
+    "gender": ["Female", "Male"],
+    "Partner": ["No", "Yes"],
+    "Dependents": ["No", "Yes"],
+    "PhoneService": ["No", "Yes"],
+    "MultipleLines": ["No", "No phone service", "Yes"],
+    "InternetService": ["DSL", "Fiber optic", "No"],
+    "PaperlessBilling": ["No", "Yes"],
+    "PaymentMethod": [
+        "Bank transfer (automatic)",
+        "Credit card (automatic)",
+        "Electronic check",
+        "Mailed check",
+    ],
+}
+
 
 def clean_raw(df: pd.DataFrame) -> pd.DataFrame:
     """Fix known data-quality issues in the raw Telco churn export.
@@ -87,6 +114,12 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     # is_electronic_check -- EDA showed this payment method churns far
     # more than any other (45.3% vs. 15-19%), worth a dedicated flag.
     df["is_electronic_check"] = (df["PaymentMethod"] == "Electronic check").astype(int)
+
+    # Cast to the fixed category levels first (see CATEGORY_LEVELS) so
+    # get_dummies emits a complete, batch-independent column set -- not
+    # just whatever categories happen to appear in this particular df.
+    for col, levels in CATEGORY_LEVELS.items():
+        df[col] = pd.Categorical(df[col], categories=levels)
 
     # One-hot encode remaining categoricals. drop_first=True avoids the
     # dummy-variable trap; not required for a tree model like XGBoost, but
