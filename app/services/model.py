@@ -21,6 +21,7 @@ should be re-derived, forgotten, or hardcoded separately in the API layer.
 """
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +37,8 @@ from sklearn.metrics import (
 from xgboost import XGBClassifier
 
 from app.core.config import HIGH_RISK_THRESHOLD, MEDIUM_RISK_THRESHOLD, MODEL_PATH, SCORE_THRESHOLD
+
+logger = logging.getLogger(__name__)
 
 MODEL_VERSION = "v1"
 
@@ -147,6 +150,7 @@ def load_model(path: str | Path | None = None) -> dict[str, Any]:
         raise FileNotFoundError(
             f"No model found at {path}. Train and save_model() one first."
         )
+    logger.info("Loading model artifact from %s", path)
     return joblib.load(path)
 
 

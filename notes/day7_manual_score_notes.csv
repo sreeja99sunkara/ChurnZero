@@ -1,0 +1,21 @@
+customer_id,expected_tier,actual_tier,match,churn_probability,ground_truth_churn,expectation_basis,why
+4472-LVYGI,low,low,True,0.0127,No,"tenure=0, Two year, no billing history yet",Matches expectation. Confirms the reasoning in expectation_basis.
+3115-CZMZD,low,low,True,0.003,No,"tenure=0, Two year, no billing history yet",Matches expectation. Confirms the reasoning in expectation_basis.
+5709-LVOEQ,low,low,True,0.0027,No,"tenure=0, Two year, no billing history yet",Matches expectation. Confirms the reasoning in expectation_basis.
+4367-NUYAO,low,low,True,0.0069,No,"tenure=0, Two year, no billing history yet",Matches expectation. Confirms the reasoning in expectation_basis.
+1371-DWPAZ,low,low,True,0.0041,No,"tenure=0, Two year, no billing history yet",Matches expectation. Confirms the reasoning in expectation_basis.
+7590-VHVEG,high,low,False,0.2232,No,"month-to-month, electronic check, tenure=1","Mismatch. Month-to-month + electronic check usually means high, but this customer has InternetService=DSL (not Fiber optic) and low MonthlyCharges ($29.85) -- InternetService_Fiber optic is the model's #2 feature by importance (Day 3), nearly as strong as contract_risk. My heuristic only accounted for contract+payment method, not internet type. Model's call (low) matches ground truth (no churn)."
+9237-HQITU,high,high,True,0.8876,Yes,"month-to-month, electronic check, tenure=2",Matches expectation. Confirms the reasoning in expectation_basis.
+9305-CDSKC,high,high,True,0.9909,Yes,"month-to-month, electronic check, tenure=8",Matches expectation. Confirms the reasoning in expectation_basis.
+8779-QRDMV,high,high,True,0.991,Yes,"month-to-month, electronic check, tenure=1",Matches expectation. Confirms the reasoning in expectation_basis.
+8665-UTDHZ,high,high,True,0.9493,Yes,"month-to-month, electronic check, tenure=1",Matches expectation. Confirms the reasoning in expectation_basis.
+6047-YHPVI,high,high,True,0.8182,Yes,"month-to-month, electronic check, tenure=5",Matches expectation. Confirms the reasoning in expectation_basis.
+3655-SNQYZ,low,low,True,0.0122,No,"two-year contract, tenure=69",Matches expectation. Confirms the reasoning in expectation_basis.
+9959-WOFKT,low,low,True,0.0556,No,"two-year contract, tenure=71",Matches expectation. Confirms the reasoning in expectation_basis.
+3638-WEABW,low,low,True,0.0341,No,"two-year contract, tenure=58",Matches expectation. Confirms the reasoning in expectation_basis.
+5248-YGIJN,low,low,True,0.0006,No,"two-year contract, tenure=72",Matches expectation. Confirms the reasoning in expectation_basis.
+3841-NFECX,low,low,True,0.0265,No,"two-year contract, tenure=71",Matches expectation. Confirms the reasoning in expectation_basis.
+5575-GNVDE,medium,low,False,0.0459,No,"one-year contract, tenure=34","Mismatch. One-year contract customers scored low across the board (see 7795-CFOCW, 6827-IEAUQ, 8627-ZYGSZ too) -- my 'one-year = medium' assumption was wrong. contract_risk encodes one-year as 1 (between month-to-month=2 and two-year=0), but the model's actual learned risk for one-year is much closer to two-year's than to month-to-month's. Ordinal position != linear risk."
+7795-CFOCW,medium,low,False,0.0305,No,"one-year contract, tenure=45","Same finding as 5575-GNVDE -- one-year contract customers consistently score low, not medium."
+6827-IEAUQ,medium,low,False,0.0622,No,"one-year contract, tenure=27","Same finding as 5575-GNVDE -- one-year contract customers consistently score low, not medium."
+8627-ZYGSZ,medium,low,False,0.0731,No,"one-year contract, tenure=47","Same finding as 5575-GNVDE -- one-year contract customers consistently score low, not medium."

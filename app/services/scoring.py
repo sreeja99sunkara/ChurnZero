@@ -53,6 +53,25 @@ def predict_proba(features: pd.DataFrame, artifact: dict) -> np.ndarray:
     return artifact["model"].predict_proba(aligned)[:, 1]
 
 
+def score_customer(customer_id: str, features: dict, artifact: dict) -> dict:
+    """Score a single customer from raw feature values already in hand
+    (e.g. an API request body), rather than loading from CUSTOMER_DATA_PATH.
+
+    Used by the /score endpoint: a caller (CRM, another service) sends the
+    customer's current raw attributes directly, since the API has no live
+    connection to a production customer database of its own. Reuses the
+    exact same build_features() -> predict_proba() -> assign_risk_tier()
+    chain as score_all_customers(), so a customer scored one at a time via
+    the API and the same customer scored by the nightly batch job get
+    identical results -- no separate "API version" of the feature logic.
+    """
+    df = pd.DataFrame([features])
+    engineered = build_features(df)
+    probability = float(predict_proba(engineered, artifact)[0])
+    tier = assign_risk_tier(probability)
+    return {"customer_id": customer_id, "churn_probability": probability, "risk_tier": tier}
+
+
 def score_all_customers(
     source: str | Path | None = None, customer_ids: list[str] | None = None
 ) -> pd.DataFrame:
