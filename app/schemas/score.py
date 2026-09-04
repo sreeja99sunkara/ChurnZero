@@ -1,13 +1,4 @@
 """Request/response schemas for the scoring endpoint.
-
-Pydantic validates automatically: a request with the wrong type for a
-field (customer_id as a number, features missing entirely, tenure sent as
-"forty-two") is rejected with a 422 before any endpoint code runs -- no
-manual validation code to write or forget. Field descriptions and
-examples below aren't just comments; FastAPI serializes them straight
-into the OpenAPI schema, so they render in /docs (Swagger UI) as real,
-interactive documentation -- exactly what whoever builds the CRM
-integration will read to know what to send and what they'll get back.
 """
 from __future__ import annotations
 

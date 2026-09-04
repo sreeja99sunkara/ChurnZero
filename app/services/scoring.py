@@ -1,18 +1,4 @@
 """Batch-score customers with the persisted churn model.
-
-Moved out of notebooks/05_scoring_chain.ipynb into a reusable module so an
-actual scheduled job (or API endpoint) can call score_all_customers()
-directly, the same reason build_features() and model.py exist as modules
-rather than staying notebook-only. The chain itself is unchanged from the
-notebook: load_customers -> build_features -> predict_proba ->
-assign_risk_tier -> output DataFrame, still four separate, individually
-testable functions rather than one large one.
-
-Thresholds (SCORE_THRESHOLD, HIGH_RISK_THRESHOLD, MEDIUM_RISK_THRESHOLD)
-and the customer data source (CUSTOMER_DATA_PATH) all come from
-app.core.config, not from literals here -- that's the point of this task:
-a marketing team retuning what counts as "high risk" should mean editing
-.env, not this file.
 """
 from __future__ import annotations
 

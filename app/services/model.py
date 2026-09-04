@@ -1,23 +1,7 @@
 """Train, evaluate, and persist the churn-risk model.
-
-Each function does one thing: train_model() only fits, evaluate_model()
-only scores, save_model()/load_model() only handle disk I/O. Nothing here
-reads a CSV or calls build_features() -- that's the caller's job (see
-notebooks/03_train_model.ipynb for the reference pipeline this module
-formalizes).
-
-Why the persisted artifact bundles more than raw model weights: at predict
-time, a fresh batch of customers run through build_features() (in
-feature_pipeline.py) won't necessarily produce the same one-hot columns
-the model was trained on -- pd.get_dummies() only emits columns for
-categories actually present in whatever batch it's given, and a single
-customer, or a small batch, can easily be missing a category that showed
-up in the full training set. Saving feature_columns alongside the model
-and reindexing to it at predict time (see align_features()) is what keeps
-training and serving from silently drifting apart. The classification
-threshold is bundled for the same reason: it's a business decision made
-during evaluation (see notebooks/03_train_model.ipynb), not something that
-should be re-derived, forgotten, or hardcoded separately in the API layer.
+train_model() only fits, 
+evaluate_model() only scores, 
+save_model()/load_model() only handle disk I/O.
 """
 from __future__ import annotations
 
@@ -154,13 +138,6 @@ def load_model(path: str | Path | None = None) -> dict[str, Any]:
     return joblib.load(path)
 
 
-# --- Singleton: load the model once per process, not once per request ---
-#
-# The serving API should call get_model() from its request handlers; the
-# first call loads from disk and caches the artifact in this module's
-# global, every call after that just returns the cached object. Reloading
-# a joblib pickle from disk on every request would add real, pointless
-# latency to every prediction.
 _cached_artifact: dict[str, Any] | None = None
 
 

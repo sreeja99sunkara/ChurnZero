@@ -1,26 +1,4 @@
 """Structured logging setup for the churn-risk API.
-
-What gets logged, per Day 6's plan: every scoring request (customer_id,
-risk_tier, churn_probability, latency), batch size and score distribution
-per batch run, and inference latency. The point of logging the
-distribution, not just individual scores: if tomorrow's average churn
-score jumps from ~0.27 to ~0.45, that's either real (something changed
-for customers) or a bug (a feature broke) -- either way you want to know
-from the logs immediately, not discover it days later when someone asks
-why the retention campaign suddenly got three times more expensive.
-
-What never gets logged: raw customer feature values (Contract,
-MonthlyCharges, PaymentMethod, TotalCharges, etc.) alongside a churn
-score. customer_id is an opaque identifier and is fine to log; the actual
-billing/account attributes that produced a score are not -- a debug log
-or an exception message that includes them would put PII/billing data in
-plaintext log files. Every log call in this app logs customer_id + the
-score/tier/latency, never the request's raw features dict.
-
-Logs are structured as one JSON object per line, not free-form prose
-sentences, so they're aggregable by key without regex -- "what was
-average churn_probability across today's score_request events" is a
-one-line jq/log-query over the day's logs, not a manual read-through.
 """
 from __future__ import annotations
 
